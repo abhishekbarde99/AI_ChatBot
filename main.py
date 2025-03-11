@@ -7,11 +7,11 @@ from urllib.parse import quote_plus
 from rdflib.compare import similar
 from faiss_search import Document_Handling
 
-username = "abhibarde1799"
-password = "iYa4ab7P3FtuTMlh"
+username = "*******"  # Enter Your MongoDb userName
+password = "*******"  # Enter Your MongoDb Password
 encoded_username = quote_plus(username)
 encoded_password = quote_plus(password)
-client = MongoClient(f"mongodb+srv://{encoded_username}:{encoded_password}@cluster0.kfkd7.mongodb.net/mydatabase?retryWrites=true&w=majority")   # MongoDb Connection String
+client = MongoClient(f"mongodb+srv://{encoded_username}:{encoded_password}@cluster0.kfkd7.mongodb.net/mydatabase?retryWrites=true&w=majority") 
 db = client["AI_ChatBot"]
 collection = db["tbl_progress_record"]
 
@@ -52,19 +52,19 @@ class ChatBot_Functionality:
         self.chat_collection.insert_one(chat_data)
 
     def call_llm(self, prompt):
-        os.environ["GROQ_API_KEY"] = "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"
+        os.environ["API_KEY"] = "*******"   #Enter Your GEN_AI API KEY
 
         headers = {
-            "Authorization": f"Bearer {os.environ['GROQ_API_KEY']}",
+            "Authorization": f"Bearer {os.environ['API_KEY']}",
             "Content-Type": "application/json",
         }
         data = {
-            # "model": "mixtral-8x7b-32768",
-            "model": "llama3-70b-8192",  # ,Example Groq model; adjust as needed
+           
+            "model": "llama3-70b", 
             "messages": [{"role": "user", "content": prompt}],
         }
 
-        response = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=data)
+        response = requests.post("https://api.com/openai/v1/chat/completions", headers=headers, json=data)
 
         if response.status_code == 200:
             return response.json()["choices"][0]["message"]["content"]

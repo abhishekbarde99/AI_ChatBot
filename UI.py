@@ -30,13 +30,6 @@ class UI:
         if "user_coding" not in st.session_state:
             st.session_state.user_coding = None
 
-        if "awaiting_coding_response" not in st.session_state:
-            st.session_state.awaiting_coding_response = True
-        if "awaiting_coding_selected" not in st.session_state:
-            st.session_state.awaiting_coding_selected = False
-        if "selected_coding_option" not in st.session_state:
-            st.session_state.selected_coding_option = None
-
         if "button" not in st.session_state:
             st.session_state["button"] = None
 
@@ -46,12 +39,6 @@ class UI:
             st.session_state.user_id = None
         if "user_name" not in st.session_state:
             st.session_state.user_name = None
-
-        # if "faiss_index" not in st.session_state:
-        #     faiss_obj = Document_Handling()
-        #     faiss_index, faiss_embeddings = faiss_obj.create_faiss_index()
-        #     st.session_state.faiss_index = faiss_index
-        #     st.session_state.faiss_embeddings = faiss_embeddings
 
         if "history_loaded" not in st.session_state:
             st.session_state.history_loaded = False
@@ -351,63 +338,6 @@ class UI:
                     unsafe_allow_html=True,
                 )
 
-                # with st.chat_message("assistant", avatar="assistant"):
-                #     st.write("Hi, In which field you want to solve coding problem?")
-                #
-                # if st.session_state.awaiting_coding_response:
-                #     options = ["Array", "Linked List", "Stack", "Queue","Tree", "Graph", "Sorting","Searching","Dynamic Programming", "Other"]
-                #     with st.chat_message("assistant", avatar="assistant"):
-                #         st.write("Choose an option : ")
-                #         selected_option = st.radio("", options = options, index = None, key="option_select", horizontal = True)
-                #
-                #     if selected_option:
-                #
-                #         st.session_state.selected_coding_option = selected_option
-                #         if selected_option == "Other":
-                #             st.session_state.coding_messages.append({"role": "assistant", "content": f"""You can choose to solve from your strong area : "{strong_area}" or from weak area : "{weak_area}" """})
-                #             st.session_state.awaiting_coding_response = False
-                #             st.session_state.awaiting_coding_selected = True
-                #             st.rerun()
-                #
-                #         else:
-                #             st.session_state.awaiting_coding_response = False
-                #             st.session_state.awaiting_coding_selected = True
-                #             st.rerun()
-                #
-                # if st.session_state.awaiting_coding_response == True:
-                #     user_input = None
-                # else:
-                #     user_input = st.chat_input(placeholder="Write your query")
-                # if st.session_state.awaiting_coding_selected:
-                #     if st.session_state.selected_coding_option == "Other":
-                #         user_input = st.chat_input(placeholder="Write your query")
-                #     else:
-                #         user_input = st.session_state.selected_coding_option
-                #         print("user input outside- ", user_input)
-                #
-                # elif st.session_state.awaiting_coding_response == False:
-                #
-                #     user_input = st.chat_input(placeholder="Write your query")
-                #     print("user input outside- ", user_input)
-                #
-                # for message in st.session_state.coding_messages:
-                #     with st.chat_message(message["role"], avatar="user" if message["role"] == "user" else "assistant"):
-                #         st.write(message["content"])
-                #
-                # if user_input:
-                #
-                #     with st.chat_message("user", avatar="user"):
-                #         st.write(user_input)
-                #
-                #     with st.spinner("Processing ..."):
-                #         result = self.coding_recommendation(user_input)
-                #
-                #     st.session_state.coding_messages.append({"role": "user", "content": user_input})
-                #     st.session_state.coding_messages.append({"role": "assistant", "content": result})
-                #
-                #     with st.chat_message("assistant", avatar="assistant"):
-                #         st.write(result)
-
                 with st.chat_message("assistant", avatar="assistant"):
                     st.write("Hi, In which field you want to solve coding problem?")
 
@@ -417,7 +347,7 @@ class UI:
 
                     with st.chat_message("assistant", avatar="assistant"):
                         st.write("Select a coding topic:")
-                        selected_topic = st.radio(" ", options, index=None, key="topic_select")
+                        selected_topic = st.radio(" ", options, index=None, key="topic_select",horizontal =True)
 
                     if selected_topic:
                         if selected_topic == "Other":
@@ -431,6 +361,16 @@ class UI:
                             if user_custom_topic:
                                 user_msg = f"I want to work on: {user_custom_topic}"
                                 st.session_state.coding_messages.append({"role": "user", "content": user_msg})
+                                with st.chat_message("user", avatar="user"):
+                                    st.write(user_custom_topic)
+
+                                with st.spinner("Processing ..."):
+                                    result = self.coding_recommendation(user_custom_topic)
+
+                                st.session_state.coding_messages.append({"role": "assistant", "content": result})
+
+                                with st.chat_message("assistant", avatar="assistant"):
+                                    st.write(result)
                                 st.session_state.awaiting_topic = False
                                 st.session_state.chat_enabled = True
                                 st.rerun()
@@ -438,11 +378,27 @@ class UI:
                         else:
                             bot_response = f"Great choice! {selected_topic}"
                             st.session_state.coding_messages.append({"role": "assistant", "content": bot_response})
+                            with st.chat_message("user", avatar="user"):
+                                st.write(selected_topic)
+
+                            with st.spinner("Processing ..."):
+                                result = self.coding_recommendation(selected_topic)
+
+                            st.session_state.coding_messages.append({"role": "assistant", "content": result})
+
+                            with st.chat_message("assistant", avatar="assistant"):
+                                st.write(result)
                             st.session_state.awaiting_topic = False
                             st.session_state.chat_enabled = True
                             st.rerun()
 
                 if st.session_state.chat_enabled:
+
+                    for message in st.session_state.coding_messages:
+                        with st.chat_message(message["role"],
+                                             avatar="user" if message["role"] == "user" else "assistant"):
+                            st.write(message["content"])
+
                     user_input = st.chat_input("Ask me anything...")
 
                     if user_input:
@@ -458,11 +414,8 @@ class UI:
                         with st.chat_message("assistant", avatar="assistant"):
                             st.write(result)
 
-                        st.rerun()
+                        # st.rerun()
 
             if button == "Logout":
                 st.session_state.clear()
                 st.rerun()
-
-obj = UI()
-obj.run_ui()
